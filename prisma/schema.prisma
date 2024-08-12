@@ -4,13 +4,71 @@ generator client {
 
 datasource db {
   provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  url               = "postgresql://neondb_owner:0oLU3FieVmED@ep-gentle-cherry-a5kpyput-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
+  shadowDatabaseUrl = "postgresql://neondb_owner:0oLU3FieVmED@ep-misty-river-a5nktywz-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
 }
 
 model Customer {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int       @id @default(autoincrement())
+  name       String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  contact    Contact?  // One-to-One relationship with Contact
+  tickets    Ticket[]  // One-to-Many relationship with Tickets
 }
+
+model Contact {
+  id         Int       @id @default(autoincrement())
+  phone      String
+  email      String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  customerId Int      @unique
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+}
+
+model Screening {
+  id         Int       @id @default(autoincrement())
+  startsAt   DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  screenId   Int       // Foreign key to Screen
+  movieId    Int       // Foreign key to Movie
+
+  screen     Screen    @relation(fields: [screenId], references: [id])
+  movie      Movie     @relation(fields: [movieId], references: [id])
+  tickets    Ticket[]  // One-to-Many relationship with Tickets
+}
+
+model Screen {
+  id         Int       @id @default(autoincrement())
+  number     Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  screenings Screening[] // One-to-Many relationship with Screenings
+}
+
+model Movie {
+  id          Int        @id @default(autoincrement())
+  title       String
+  runtimeMins Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  screenings  Screening[]  // One-to-Many relationship with Screenings
+}
+
+model Ticket {
+  id         Int       @id @default(autoincrement())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  customerId Int       // Foreign key to Customer
+  screeningId Int      // Foreign key to Screening
+
+  customer   Customer  @relation(fields: [customerId], references: [id]) // Relation to Customer
+  screening  Screening @relation(fields: [screeningId], references: [id]) // Relation to Screening
+}
+
