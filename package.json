@@ -28,9 +28,10 @@
   "homepage": "https://github.com/boolean-uk/database-orm#readme",
   "devDependencies": {
     "jest": "^29.7.0",
-    "prisma": "^5.16.1"
+    "prettier-plugin-prisma": "^5.0.0",
+    "prisma": "^5.18.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.16.1"
+    "@prisma/client": "^5.18.0"
   }
 }
