@@ -3,14 +3,67 @@ generator client {
 }
 
 datasource db {
-  provider          = "postgresql"
+  provider = "postgresql"
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+
 }
 
 model Customer {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  contact   Contact?
+  tickets   Ticket[]
+}
+
+model Contact {
+  id        Int       @id @default(autoincrement())
+  phone     String
+  email     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  customerId Int      @unique
+  customer  Customer  @relation(fields: [customerId], references: [id])
+}
+
+model Movie {
+  id          Int        @id @default(autoincrement())
+  title       String
+  runtimeMins Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  screenings Screening[]
+}
+
+model Screening {
+  id        Int       @id @default(autoincrement())
+  startsAt  DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  movieId   Int
+  screenId  Int
+  movie     Movie     @relation(fields: [movieId], references: [id])
+  screen    Screen    @relation(fields: [screenId], references: [id])
+  tickets   Ticket[]
+}
+
+model Screen {
+  id        Int        @id @default(autoincrement())
+  number    Int
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  screenings Screening[]
+}
+
+model Ticket {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  customerId Int
+  screeningId Int
+  customer  Customer  @relation(fields: [customerId], references: [id])
+  screening Screening @relation(fields: [screeningId], references: [id])
 }
